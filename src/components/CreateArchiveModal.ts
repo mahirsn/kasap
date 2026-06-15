@@ -8,7 +8,7 @@ import {
 import { SUCCESS_COLOR } from "../config";
 import { addArchive } from "../database";
 import { sendLog } from "../utils/logging";
-import { buildArchiveActionRow } from "./ArchiveActionButtons";
+import { buildArchiveActionRows } from "./ArchiveActionButtons";
 
 export async function handle(interaction: ModalSubmitInteraction) {
   if (interaction.customId !== "create_archive_modal") return;
@@ -65,7 +65,7 @@ export async function handle(interaction: ModalSubmitInteraction) {
     .setTimestamp()
     .setFooter({ text: `Owned by ${displayName}` });
 
-  await channel.send({ embeds: [embed], components: [buildArchiveActionRow(channel.id)] });
+  await channel.send({ embeds: [embed], components: buildArchiveActionRows(channel.id) });
 
   await interaction.followUp(`Archive created: ${channel}`);
   await sendLog(guild, `📁 **Archive created** ${channel} by ${interaction.user}`);

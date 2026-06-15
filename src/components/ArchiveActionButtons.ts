@@ -24,15 +24,18 @@ export const ADD_USER_BUTTON_ID = "add_user_archive";
 export const REMOVE_USER_BUTTON_ID = "remove_user_archive";
 export const DELETE_BUTTON_ID = "delete_archive";
 
-export function buildArchiveActionRow(channelId: string): ActionRowBuilder<ButtonBuilder> {
-  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+export function buildArchiveActionRows(channelId: string): ActionRowBuilder<ButtonBuilder>[] {
+  const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId(TRANSFER_BUTTON_ID).setLabel("Transfer").setEmoji("🔁").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId(HIDE_BUTTON_ID).setLabel("Hide").setEmoji("👁️").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId(LOCK_BUTTON_ID).setLabel("Lock").setEmoji("🔒").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId(ADD_USER_BUTTON_ID).setLabel("Add User").setEmoji("👤").setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(REMOVE_USER_BUTTON_ID).setLabel("Remove User").setEmoji("❌").setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(REMOVE_USER_BUTTON_ID).setLabel("Remove User").setEmoji("❌").setStyle(ButtonStyle.Danger)
+  );
+  const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId(DELETE_BUTTON_ID).setLabel("Delete").setEmoji("🗑️").setStyle(ButtonStyle.Danger)
   );
+  return [row1, row2];
 }
 
 async function checkOwner(interaction: ButtonInteraction): Promise<boolean> {
@@ -130,7 +133,7 @@ export async function handleTransferConfirm(interaction: ButtonInteraction) {
         .setDescription(`This archive has been transferred to ${newOwner ?? "unknown"}.`)
         .setColor(WARNING_COLOR),
     ],
-    components: [buildArchiveActionRow(channelId)],
+    components: buildArchiveActionRows(channelId),
   });
 
   await interaction.update({ content: `Archive transferred to **${newOwner?.user.username ?? "unknown"}**.`, components: [] });
