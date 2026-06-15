@@ -7,8 +7,6 @@ import {
   ModalActionRowComponentBuilder,
 } from "discord.js";
 
-type ModalRow = ActionRowBuilder<ModalActionRowComponentBuilder>;
-
 export const CREATE_ARCHIVE_BUTTON_ID = "create_archive_button";
 
 export async function handle(interaction: ButtonInteraction) {
@@ -33,8 +31,8 @@ export async function handle(interaction: ButtonInteraction) {
     .setMaxLength(100);
 
   modal.addComponents(
-    new ModalRow().addComponents(nameInput),
-    new ModalRow().addComponents(descInput)
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(nameInput),
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(descInput)
   );
 
   await interaction.showModal(modal);
