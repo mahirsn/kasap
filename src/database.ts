@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 
 const DB_PATH = path.join(process.cwd(), "archives.db");
-const db = new Database(DB_PATH);
+const db: InstanceType<typeof Database> = new Database(DB_PATH);
 
 db.pragma("journal_mode = WAL");
 

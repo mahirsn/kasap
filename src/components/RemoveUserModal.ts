@@ -35,7 +35,7 @@ export async function handle(interaction: ModalSubmitInteraction) {
     return;
   }
 
-  const overwrite = channel.permissionOverrides.get(member.id);
+  const overwrite = channel.permissionOverwrites.cache.get(member.id);
   if (!overwrite) {
     await interaction.followUp("This user doesn't have explicit permissions in this archive.");
     return;

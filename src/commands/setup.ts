@@ -50,7 +50,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       .setStyle(ButtonStyle.Primary)
   );
 
-  const message = await interaction.channel!.send({ embeds: [embed], components: [row] });
+  const channel = interaction.channel as import("discord.js").TextChannel;
+  const message = await channel.send({ embeds: [embed], components: [row] });
   setSetupMessage(message.id, interaction.channel!.id);
 
   await sendLog(interaction.guild, `⚙️ **Setup panel** deployed in ${interaction.channel} by ${interaction.user}`);

@@ -7,11 +7,15 @@ import {
   PermissionFlagsBits,
   TextChannel,
   EmbedBuilder,
-  ActionRowComponent,
+  UserSelectMenuBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 import { getOwner } from "../database";
 import { isOwnerOrAdmin } from "../utils/permissions";
 import { WARNING_COLOR, ERROR_COLOR } from "../config";
+import { sendLog } from "../utils/logging";
 
 export const TRANSFER_BUTTON_ID = "transfer_archive";
 export const HIDE_BUTTON_ID = "hide_archive";
@@ -42,7 +46,6 @@ export async function handleTransfer(interaction: ButtonInteraction) {
   if (interaction.customId !== TRANSFER_BUTTON_ID) return;
   if (!(await checkOwner(interaction))) return;
 
-  const { UserSelectMenuBuilder, ActionRowBuilder: AR } = await import("discord.js");
   const selectMenu = new UserSelectMenuBuilder()
     .setCustomId(`transfer_select_${interaction.channelId}`)
     .setPlaceholder("Select a user to transfer to")
@@ -51,7 +54,7 @@ export async function handleTransfer(interaction: ButtonInteraction) {
 
   await interaction.reply({
     content: "Select a user to transfer this archive to:",
-    components: [new AR<UserSelectMenuBuilder>().addComponents(selectMenu)],
+    components: [new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(selectMenu)],
     ephemeral: true,
   });
 }
@@ -91,7 +94,6 @@ export async function handleTransferConfirm(interaction: ButtonInteraction) {
   const newOwnerId = parts[3];
 
   const { transferArchive } = await import("../database");
-  const { sendLog } = await import("../utils/logging");
 
   const channel = interaction.guild.channels.cache.get(channelId) as TextChannel | undefined;
   if (!channel) {
@@ -143,7 +145,7 @@ export async function handleHide(interaction: ButtonInteraction) {
   if (!channel) return;
 
   const everyone = interaction.guild!.roles.everyone;
-  const overwrite = channel.permissionOverrides.get(everyone.id);
+  const overwrite = channel.permissionOverwrites.cache.get(everyone.id);
   const isHidden = overwrite?.deny.has(PermissionFlagsBits.ViewChannel) ?? false;
 
   if (isHidden) {
@@ -165,7 +167,7 @@ export async function handleLock(interaction: ButtonInteraction) {
   if (!channel) return;
 
   const everyone = interaction.guild!.roles.everyone;
-  const overwrite = channel.permissionOverrides.get(everyone.id);
+  const overwrite = channel.permissionOverwrites.cache.get(everyone.id);
   const isLocked = overwrite?.deny.has(PermissionFlagsBits.SendMessages) ?? false;
 
   if (isLocked) {
@@ -183,8 +185,6 @@ export async function handleAddUser(interaction: ButtonInteraction) {
   if (interaction.customId !== ADD_USER_BUTTON_ID) return;
   if (!(await checkOwner(interaction))) return;
 
-  const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import("discord.js");
-
   const modal = new ModalBuilder()
     .setCustomId(`add_user_modal_${interaction.channelId}`)
     .setTitle("Add User to Archive");
@@ -196,15 +196,13 @@ export async function handleAddUser(interaction: ButtonInteraction) {
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
-  modal.addComponents(new AR<TextInputBuilder>().addComponents(input));
+  modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
   await interaction.showModal(modal);
 }
 
 export async function handleRemoveUser(interaction: ButtonInteraction) {
   if (interaction.customId !== REMOVE_USER_BUTTON_ID) return;
   if (!(await checkOwner(interaction))) return;
-
-  const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import("discord.js");
 
   const modal = new ModalBuilder()
     .setCustomId(`remove_user_modal_${interaction.channelId}`)
@@ -217,7 +215,7 @@ export async function handleRemoveUser(interaction: ButtonInteraction) {
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
-  modal.addComponents(new AR<TextInputBuilder>().addComponents(input));
+  modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
   await interaction.showModal(modal);
 }
 
@@ -251,7 +249,6 @@ export async function handleDeleteConfirm(interaction: ButtonInteraction) {
 
   const channelId = interaction.customId.replace("delete_confirm_", "");
   const { removeArchive } = await import("../database");
-  const { sendLog } = await import("../utils/logging");
 
   const channel = interaction.guild.channels.cache.get(channelId);
   if (!channel) {
